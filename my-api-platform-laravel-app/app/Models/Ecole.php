@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
-#[ApiResource(routePrefix: '/platform')]
+#[ApiResource]
 class Ecole extends Model
 {
     use HasFactory;

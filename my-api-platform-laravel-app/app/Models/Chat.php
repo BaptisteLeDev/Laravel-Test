@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
-#[ApiResource(routePrefix: '/platform')]
+#[ApiResource]
 class Chat extends Model
 {
     use HasFactory;

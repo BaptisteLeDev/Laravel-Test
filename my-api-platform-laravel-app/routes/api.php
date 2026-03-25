@@ -20,4 +20,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::apiResource('ecoles.classes', ClasseController::class)->scoped();
     Route::apiResource('users', UserController::class);
     Route::patch('users/{user}/role', [UserController::class, 'updateRole']);
+    Route::apiResource('formations', App\Http\Controllers\Api\FormationController::class);
+    Route::apiResource('formations.chapitres', App\Http\Controllers\Api\ChapitreController::class)->scoped();
+    Route::apiResource('chapitres.articles', App\Http\Controllers\Api\ArticleController::class)->scoped();
+    Route::apiResource('progressions', App\Http\Controllers\Api\ProgressionController::class);
 });
