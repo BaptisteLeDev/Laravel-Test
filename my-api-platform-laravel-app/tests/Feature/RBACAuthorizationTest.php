@@ -16,38 +16,104 @@ class RBACAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Test access for each endpoint with: (1) authorized user, (2) unauthorized role, (3) no auth
-     */
-    public function test_rbac_access_matrix()
+    public function test_formation_creation_access()
     {
-        // Setup users
+        $admin = User::factory()->create(['type' => 'admin', 'name' => 'admin']);
+        $prof = User::factory()->create(['type' => 'prof']);
+        $ecole = User::factory()->create(['type' => 'ecole']);
+        $etudiant = User::factory()->create(['type' => 'etudiant']);
+        $payload = ['titre' => 'Test Formation', 'user_id' => $prof->id];
+
+        Sanctum::actingAs($admin);
+        $this->postJson('/api/formations', $payload)->assertCreated();
+        Sanctum::actingAs($prof);
+        $this->postJson('/api/formations', $payload)->assertCreated();
+        Sanctum::actingAs($ecole);
+        $this->postJson('/api/formations', $payload)->assertForbidden();
+        Sanctum::actingAs($etudiant);
+        $this->postJson('/api/formations', $payload)->assertForbidden();
+        $this->postJson('/api/formations', $payload)->assertUnauthorized();
+    }
+
+    public function test_classe_creation_access()
+    {
         $admin = User::factory()->create(['type' => 'admin', 'name' => 'admin']);
         $ecole = User::factory()->create(['type' => 'ecole']);
         $prof = User::factory()->create(['type' => 'prof']);
         $etudiant = User::factory()->create(['type' => 'etudiant']);
+        $ecoleModel = Ecole::factory()->create(['user_id' => $ecole->id]);
+        $payload = ['nom' => 'Classe Test'];
 
-        // Example: Création de formation (admin/prof OK, autres refusés)
-        $payload = [
-            'titre' => 'Test Formation',
-            'user_id' => $prof->id,
-        ];
-
-        // 1. Admin peut créer
         Sanctum::actingAs($admin);
-        $this->postJson('/api/formations', $payload)->assertCreated();
-
-        // 2. Prof peut créer
-        Sanctum::actingAs($prof);
-        $this->postJson('/api/formations', $payload)->assertCreated();
-
-        // 3. Ecole ne peut pas créer
+        $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertCreated();
         Sanctum::actingAs($ecole);
-        $this->postJson('/api/formations', $payload)->assertForbidden();
+        $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertCreated();
+        Sanctum::actingAs($prof);
+        $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertForbidden();
+        Sanctum::actingAs($etudiant);
+        $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertForbidden();
+        $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertUnauthorized();
+    }
 
-        // 4. Non authentifié
-        $this->postJson('/api/formations', $payload)->assertUnauthorized();
+    public function test_chapitre_creation_access()
+    {
+        $admin = User::factory()->create(['type' => 'admin', 'name' => 'admin']);
+        $prof = User::factory()->create(['type' => 'prof']);
+        $ecole = User::factory()->create(['type' => 'ecole']);
+        $etudiant = User::factory()->create(['type' => 'etudiant']);
+        $formation = Formation::factory()->create(['user_id' => $prof->id]);
+        $payload = ['titre' => 'Chapitre Test', 'formation_id' => $formation->id];
 
-        // Répéter pour d'autres routes critiques (classe, chapitre, article, user update...)
+        Sanctum::actingAs($admin);
+        $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertCreated();
+        Sanctum::actingAs($prof);
+        $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertCreated();
+        Sanctum::actingAs($ecole);
+        $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertForbidden();
+        Sanctum::actingAs($etudiant);
+        $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertForbidden();
+        $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertUnauthorized();
+    }
+
+    public function test_article_creation_access()
+    {
+        $admin = User::factory()->create(['type' => 'admin', 'name' => 'admin']);
+        $prof = User::factory()->create(['type' => 'prof']);
+        $ecole = User::factory()->create(['type' => 'ecole']);
+        $etudiant = User::factory()->create(['type' => 'etudiant']);
+        $formation = Formation::factory()->create(['user_id' => $prof->id]);
+        $chapitre = Chapitre::factory()->create(['formation_id' => $formation->id]);
+        $payload = ['titre' => 'Article Test', 'chapitre_id' => $chapitre->id];
+
+        Sanctum::actingAs($admin);
+        $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertCreated();
+        Sanctum::actingAs($prof);
+        $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertCreated();
+        Sanctum::actingAs($ecole);
+        $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertForbidden();
+        Sanctum::actingAs($etudiant);
+        $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertForbidden();
+        $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertUnauthorized();
+    }
+
+    public function test_user_update_access()
+    {
+        $admin = User::factory()->create(['type' => 'admin', 'name' => 'admin']);
+        $ecole = User::factory()->create(['type' => 'ecole']);
+        $classe = Classe::factory()->create();
+        $eleve = User::factory()->create(['type' => 'etudiant', 'classe_id' => $classe->id]);
+        $classe->ecole()->associate(Ecole::factory()->create(['user_id' => $ecole->id]));
+        $classe->save();
+        $payload = ['name' => 'Nouvel Élève'];
+
+        Sanctum::actingAs($admin);
+        $this->patchJson("/api/users/{$eleve->id}", $payload)->assertOk();
+        Sanctum::actingAs($ecole);
+        $this->patchJson("/api/users/{$eleve->id}", $payload)->assertOk();
+        Sanctum::actingAs(User::factory()->create(['type' => 'prof']));
+        $this->patchJson("/api/users/{$eleve->id}", $payload)->assertForbidden();
+        Sanctum::actingAs(User::factory()->create(['type' => 'etudiant']));
+        $this->patchJson("/api/users/{$eleve->id}", $payload)->assertForbidden();
+        $this->patchJson("/api/users/{$eleve->id}", $payload)->assertUnauthorized();
     }
 }
