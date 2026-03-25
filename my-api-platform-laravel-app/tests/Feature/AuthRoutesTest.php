@@ -57,7 +57,7 @@ class AuthRoutesTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Sanctum::actingAs($user);
+        $this->actingAsOnce($user);
 
         $this->getJson('/api/auth/me')
             ->assertOk()

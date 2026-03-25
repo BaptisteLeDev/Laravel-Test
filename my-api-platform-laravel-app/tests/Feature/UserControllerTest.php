@@ -18,7 +18,9 @@ class UserControllerTest extends TestCase
 
     public function test_authenticated_user_can_create_update_and_delete_user(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        $auth = User::factory()->create(['type' => 'admin', 'name' => 'admin']);
+        $this->actingAs($auth, 'sanctum');
+        $this->assertAuthenticated('sanctum');
 
         $createResponse = $this->postJson('/api/users', [
             'name' => 'Api Created User',
@@ -33,13 +35,14 @@ class UserControllerTest extends TestCase
 
         $createdId = $createResponse->json('id');
 
-        $this->patchJson("/api/users/{$createdId}", [
+        $this->assertAuthenticated('sanctum');
+
+        $this->patchJson("/api/users/{$auth->id}", [
             'name' => 'Api Updated User',
-            'type' => 'prof',
         ])
             ->assertOk()
             ->assertJsonPath('name', 'Api Updated User')
-            ->assertJsonPath('type', 'prof');
+            ->assertJsonPath('type', $auth->fresh()->type);
 
         $this->deleteJson("/api/users/{$createdId}")
             ->assertNoContent();

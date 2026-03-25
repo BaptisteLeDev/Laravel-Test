@@ -11,7 +11,6 @@ class ArticleController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(\App\Models\Article::class, 'article');
     }
     public function index()
     {
@@ -25,6 +24,7 @@ class ArticleController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', \App\Models\Article::class);
         $data = $request->validate([
             'titre' => 'required|string|max:255',
             'contenu' => 'nullable|string',
@@ -39,6 +39,7 @@ class ArticleController extends Controller
 
     public function update(Request $request, Article $article)
     {
+        $this->authorize('update', $article);
         $data = $request->validate([
             'titre' => 'sometimes|required|string|max:255',
             'contenu' => 'nullable|string',
@@ -53,6 +54,7 @@ class ArticleController extends Controller
 
     public function destroy(Article $article)
     {
+        $this->authorize('delete', $article);
         $article->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);

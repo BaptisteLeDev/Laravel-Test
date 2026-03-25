@@ -15,7 +15,7 @@ class EcoleClasseControllerTest extends TestCase
 
     public function test_store_ecole_sets_user_type_to_ecole(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        $this->actingAsOnce(User::factory()->create());
 
         $user = User::factory()->create(['type' => 'etudiant']);
 
@@ -36,7 +36,7 @@ class EcoleClasseControllerTest extends TestCase
 
     public function test_nested_classe_show_returns_404_when_classe_belongs_to_other_ecole(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        $this->actingAsOnce(User::factory()->create());
 
         $ecoleA = Ecole::factory()->create();
         $ecoleB = Ecole::factory()->create();

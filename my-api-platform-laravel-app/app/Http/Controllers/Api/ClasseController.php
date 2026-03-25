@@ -7,12 +7,12 @@ use App\Models\Classe;
 use App\Models\Ecole;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ClasseController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(\App\Models\Classe::class, 'classe');
     }
     public function index(Ecole $ecole): JsonResponse
     {
@@ -23,6 +23,12 @@ class ClasseController extends Controller
 
     public function store(Request $request, Ecole $ecole): JsonResponse
     {
+        $this->authorize('create', Classe::class);
+        Log::info('ClasseController::store auth state', [
+            'check' => auth()->check(),
+            'user_id' => optional(auth()->user())->id,
+            'default_guard' => app('auth')->getDefaultDriver(),
+        ]);
         $validated = $request->validate([
             'nom' => ['required', 'string', 'max:255'],
         ]);

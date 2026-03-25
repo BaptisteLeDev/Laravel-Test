@@ -19,8 +19,12 @@ class FormationPolicy
 
     public function create(User $user): bool
     {
-        // Only admin can create formations by default
-        return $user->isAdmin();
+        // Admins and professors can create formations
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return isset($user->type) && in_array(strtolower($user->type), ['prof', 'professeur'], true);
     }
 
     public function update(User $user, Formation $formation): bool

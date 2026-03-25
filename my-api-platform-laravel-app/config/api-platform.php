@@ -28,12 +28,13 @@ return [
         // 'middleware' => [],
     ],
 
-    'resources' => [
-        app_path('Models'),
-    ],
+    // Disable automatic resource discovery to avoid route conflicts with
+    // application controllers during tests and normal routing.
+    'resources' => [],
 
     'formats' => [
         'jsonld' => ['application/ld+json'],
+        'json' => ['application/json'],
         // 'jsonapi' => ['application/vnd.api+json'],
         // 'csv' => ['text/csv'],
     ],

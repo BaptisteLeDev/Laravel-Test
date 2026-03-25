@@ -14,7 +14,7 @@ class ApiControllersTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user, 'sanctum')
+        $this->actingAsOnce($user)
             ->getJson('/api/formations')
             ->assertStatus(200);
     }
@@ -23,7 +23,7 @@ class ApiControllersTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user, 'sanctum')
+        $this->actingAsOnce($user)
             ->getJson('/api/progressions')
             ->assertStatus(200);
     }

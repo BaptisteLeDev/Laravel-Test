@@ -11,7 +11,6 @@ class ChapitreController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(\App\Models\Chapitre::class, 'chapitre');
     }
     public function index()
     {
@@ -25,6 +24,7 @@ class ChapitreController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', \App\Models\Chapitre::class);
         $data = $request->validate([
             'titre' => 'required|string|max:255',
             'ordre' => 'nullable|integer',
@@ -38,6 +38,7 @@ class ChapitreController extends Controller
 
     public function update(Request $request, Chapitre $chapitre)
     {
+        $this->authorize('update', $chapitre);
         $data = $request->validate([
             'titre' => 'sometimes|required|string|max:255',
             'ordre' => 'nullable|integer',
@@ -51,6 +52,7 @@ class ChapitreController extends Controller
 
     public function destroy(Chapitre $chapitre)
     {
+        $this->authorize('delete', $chapitre);
         $chapitre->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);

@@ -24,13 +24,13 @@ class RBACAuthorizationTest extends TestCase
         $etudiant = User::factory()->create(['type' => 'etudiant']);
         $payload = ['titre' => 'Test Formation', 'user_id' => $prof->id];
 
-        Sanctum::actingAs($admin);
+        $this->actingAsOnce($admin);
         $this->postJson('/api/formations', $payload)->assertCreated();
-        Sanctum::actingAs($prof);
+        $this->actingAsOnce($prof);
         $this->postJson('/api/formations', $payload)->assertCreated();
-        Sanctum::actingAs($ecole);
+        $this->actingAsOnce($ecole);
         $this->postJson('/api/formations', $payload)->assertForbidden();
-        Sanctum::actingAs($etudiant);
+        $this->actingAsOnce($etudiant);
         $this->postJson('/api/formations', $payload)->assertForbidden();
         $this->postJson('/api/formations', $payload)->assertUnauthorized();
     }
@@ -44,13 +44,13 @@ class RBACAuthorizationTest extends TestCase
         $ecoleModel = Ecole::factory()->create(['user_id' => $ecole->id]);
         $payload = ['nom' => 'Classe Test'];
 
-        Sanctum::actingAs($admin);
+        $this->actingAsOnce($admin);
         $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertCreated();
-        Sanctum::actingAs($ecole);
+        $this->actingAsOnce($ecole);
         $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertCreated();
-        Sanctum::actingAs($prof);
+        $this->actingAsOnce($prof);
         $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertForbidden();
-        Sanctum::actingAs($etudiant);
+        $this->actingAsOnce($etudiant);
         $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertForbidden();
         $this->postJson("/api/ecoles/{$ecoleModel->id}/classes", $payload)->assertUnauthorized();
     }
@@ -64,13 +64,13 @@ class RBACAuthorizationTest extends TestCase
         $formation = Formation::factory()->create(['user_id' => $prof->id]);
         $payload = ['titre' => 'Chapitre Test', 'formation_id' => $formation->id];
 
-        Sanctum::actingAs($admin);
+        $this->actingAsOnce($admin);
         $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertCreated();
-        Sanctum::actingAs($prof);
+        $this->actingAsOnce($prof);
         $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertCreated();
-        Sanctum::actingAs($ecole);
+        $this->actingAsOnce($ecole);
         $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertForbidden();
-        Sanctum::actingAs($etudiant);
+        $this->actingAsOnce($etudiant);
         $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertForbidden();
         $this->postJson("/api/formations/{$formation->id}/chapitres", $payload)->assertUnauthorized();
     }
@@ -85,13 +85,13 @@ class RBACAuthorizationTest extends TestCase
         $chapitre = Chapitre::factory()->create(['formation_id' => $formation->id]);
         $payload = ['titre' => 'Article Test', 'chapitre_id' => $chapitre->id];
 
-        Sanctum::actingAs($admin);
+        $this->actingAsOnce($admin);
         $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertCreated();
-        Sanctum::actingAs($prof);
+        $this->actingAsOnce($prof);
         $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertCreated();
-        Sanctum::actingAs($ecole);
+        $this->actingAsOnce($ecole);
         $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertForbidden();
-        Sanctum::actingAs($etudiant);
+        $this->actingAsOnce($etudiant);
         $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertForbidden();
         $this->postJson("/api/chapitres/{$chapitre->id}/articles", $payload)->assertUnauthorized();
     }
@@ -106,13 +106,13 @@ class RBACAuthorizationTest extends TestCase
         $classe->save();
         $payload = ['name' => 'Nouvel Élève'];
 
-        Sanctum::actingAs($admin);
+        $this->actingAsOnce($admin);
         $this->patchJson("/api/users/{$eleve->id}", $payload)->assertOk();
-        Sanctum::actingAs($ecole);
+        $this->actingAsOnce($ecole);
         $this->patchJson("/api/users/{$eleve->id}", $payload)->assertOk();
-        Sanctum::actingAs(User::factory()->create(['type' => 'prof']));
+        $this->actingAsOnce(User::factory()->create(['type' => 'prof']));
         $this->patchJson("/api/users/{$eleve->id}", $payload)->assertForbidden();
-        Sanctum::actingAs(User::factory()->create(['type' => 'etudiant']));
+        $this->actingAsOnce(User::factory()->create(['type' => 'etudiant']));
         $this->patchJson("/api/users/{$eleve->id}", $payload)->assertForbidden();
         $this->patchJson("/api/users/{$eleve->id}", $payload)->assertUnauthorized();
     }

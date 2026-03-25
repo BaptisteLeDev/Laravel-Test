@@ -12,7 +12,6 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(\App\Models\User::class, 'user');
     }
     public function index(): JsonResponse
     {
@@ -21,6 +20,7 @@ class UserController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $this->authorize('create', User::class);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
@@ -47,6 +47,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): JsonResponse
     {
+        $this->authorize('update', $user);
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
@@ -66,6 +67,7 @@ class UserController extends Controller
 
     public function destroy(User $user): JsonResponse
     {
+        $this->authorize('delete', $user);
         $user->delete();
 
         return response()->json([], 204);
@@ -73,6 +75,7 @@ class UserController extends Controller
 
     public function updateRole(Request $request, User $user): JsonResponse
     {
+        $this->authorize('update', $user);
         $validated = $request->validate([
             'role' => ['required', 'in:prof,ecole,etudiant'],
         ]);

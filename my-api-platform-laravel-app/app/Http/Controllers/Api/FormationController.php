@@ -11,7 +11,6 @@ class FormationController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(Formation::class, 'formation');
     }
     public function index()
     {
@@ -25,6 +24,7 @@ class FormationController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Formation::class);
         $data = $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -38,6 +38,7 @@ class FormationController extends Controller
 
     public function update(Request $request, Formation $formation)
     {
+        $this->authorize('update', $formation);
         $data = $request->validate([
             'titre' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
@@ -51,6 +52,7 @@ class FormationController extends Controller
 
     public function destroy(Formation $formation)
     {
+        $this->authorize('delete', $formation);
         $formation->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);

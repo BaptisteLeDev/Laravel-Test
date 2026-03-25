@@ -20,7 +20,7 @@ class ChatControllerTest extends TestCase
         Chat::factory()->create(['user_id' => $owner->id, 'message' => 'owner message']);
         Chat::factory()->create(['user_id' => $other->id, 'message' => 'other message']);
 
-        Sanctum::actingAs($owner);
+        $this->actingAsOnce($owner);
 
         $response = $this->getJson('/api/chats')->assertOk();
 
@@ -37,7 +37,7 @@ class ChatControllerTest extends TestCase
 
         $chat = Chat::factory()->create(['user_id' => $owner->id]);
 
-        Sanctum::actingAs($other);
+        $this->actingAsOnce($other);
 
         $this->getJson("/api/chats/{$chat->id}")->assertForbidden();
     }

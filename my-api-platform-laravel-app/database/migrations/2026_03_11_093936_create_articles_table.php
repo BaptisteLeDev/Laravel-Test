@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
             $table->string('titre');
-            $table->longText('contenu');
+            $table->longText('contenu')->nullable();
             $table->integer('ordre')->default(0);
             $table->foreignId('chapitre_id')->constrained()->onDelete('cascade');
             $table->timestamps();
