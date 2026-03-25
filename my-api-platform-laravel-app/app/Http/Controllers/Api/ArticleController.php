@@ -9,6 +9,10 @@ use Illuminate\Http\Response;
 
 class ArticleController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(\App\Models\Article::class, 'article');
+    }
     public function index()
     {
         return Article::all();

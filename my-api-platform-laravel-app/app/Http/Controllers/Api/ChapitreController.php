@@ -9,6 +9,10 @@ use Illuminate\Http\Response;
 
 class ChapitreController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(\App\Models\Chapitre::class, 'chapitre');
+    }
     public function index()
     {
         return Chapitre::with('articles')->get();

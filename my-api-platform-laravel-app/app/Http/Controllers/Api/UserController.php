@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(\App\Models\User::class, 'user');
+    }
     public function index(): JsonResponse
     {
         return response()->json(User::query()->latest()->paginate(15));

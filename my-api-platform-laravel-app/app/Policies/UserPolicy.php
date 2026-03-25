@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+
+class UserPolicy
+{
+    public function viewAny(User $user): bool
+    {
+        return $user->isAdmin() || $user->type === 'ecole';
+    }
+
+    public function view(User $user, User $target): bool
+    {
+        // Admin peut tout, école peut voir ses élèves, chacun peut se voir
+        if ($user->isAdmin() || $user->id === $target->id) {
+            return true;
+        }
+        if ($user->type === 'ecole' && $target->classe && $target->classe->ecole && $target->classe->ecole->user_id === $user->id) {
+            return true;
+        }
+        return false;
+    }
+
+    public function create(User $user): bool
+    {
+        // Admin ou école
+        return $user->isAdmin() || $user->type === 'ecole';
+    }
+
+    public function update(User $user, User $target): bool
+    {
+        // Admin, ou école sur ses élèves
+        if ($user->isAdmin()) {
+            return true;
+        }
+        if ($user->type === 'ecole' && $target->classe && $target->classe->ecole && $target->classe->ecole->user_id === $user->id) {
+            return true;
+        }
+        return false;
+    }
+
+    public function delete(User $user, User $target): bool
+    {
+        // Admin uniquement
+        return $user->isAdmin();
+    }
+}

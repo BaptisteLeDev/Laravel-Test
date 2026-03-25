@@ -10,6 +10,10 @@ use Illuminate\Http\Request;
 
 class ClasseController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(\App\Models\Classe::class, 'classe');
+    }
     public function index(Ecole $ecole): JsonResponse
     {
         $classes = $ecole->classes()->latest()->paginate(15);
